@@ -24,3 +24,82 @@ def zz_circuit(alpha, time, init):
     qml.CNOT(wires=[0,1])
     ##################
     return qml.probs(wires=range(n_bits))
+n_bits = 2
+dev = qml.device("default.qubit", wires=n_bits)
+
+@qml.qnode(dev)
+def ising_circuit(alpha, time, init):
+    """Circuit for evolving two electrons with a ZZ interaction
+    using an Ising gate
+    
+    Args:
+        alpha (float): The strength of the interaction.
+        time (float): The time we evolve the electron wavefunction for.
+        init (numpy.array(int)): An initial state specified by two bits [x, y]. Prepare the
+            system in this state prior to applying the time evolution circuit.
+
+    Returns: 
+        np.tensor: Output state.
+    """
+    ##################
+    # YOUR CODE HERE #
+    qml.BasisState(init,wires=[i for i in range(n_bits)])
+    # Apply the Ising ZZ gate, which implements time evolution
+    qml.IsingZZ(2*alpha * time, wires=[0, 1])
+    ##################
+    return qml.state()
+
+n_bits = 2
+dev = qml.device("default.qubit", wires=n_bits)
+
+@qml.qnode(dev)
+def ZZ_evolve(alpha, time, init):
+    """Circuit for evolving two electrons with a ZZ interaction
+    using qml.evolve
+    
+    Args:
+        alpha (float): The strength of the interaction.
+        time (float): The time we evolve the electron wave function for.
+        init (numpy.array(int)): An initial state specified by two bits [x, y]. Prepare the
+            system in this state prior to applying the time evolution circuit.
+
+    Returns: 
+        np.tensor: Output state.
+    """
+    ##################
+    # YOUR CODE HERE #
+    ZZ_hamiltonian = alpha * qml.PauliZ(0) @ qml.PauliZ(1)
+
+    # Prepare the initial state using qml.BasisState
+    qml.BasisState(init,wires=[i for i in range(n_bits)])
+
+    # Apply the time evolution using qml.evolve
+    qml.evolve(ZZ_hamiltonian, time)
+    ##################
+    return qml.state()
+n_bits = 5
+dev = qml.device("default.qubit", wires=n_bits)
+    
+##################
+# YOUR CODE HERE #
+##################
+coeffs = [1] # MODIFY THIS
+obs = [qml.PauliZ(0)] # MODIFY THIS
+H = qml.dot(coeffs, obs)
+
+@qml.qnode(dev)
+def energy(init):
+    """Circuit for measuring expectation value of Hamiltonian in a given state.
+    
+    Args:
+        init (numpy.array(int)): An initial computational basis state, specified by five bits.
+
+    Returns: 
+        float: Expectation value of the Hamiltonian H.
+    """
+    qml.BasisState(init, wires=range(n_bits))
+
+    obs = [qml.PauliZ(0)@qml.PauliZ(1), qml.PauliZ(1)@qml.PauliZ(2), qml.PauliZ(1)@qml.PauliZ(3), qml.PauliZ(3)@qml.PauliZ(4)]
+    coeffs =  [1,1,1,1]
+    H = qml.Hamiltonian(coeffs, obs)
+    return qml.expval(H)
