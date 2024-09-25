@@ -11,7 +11,7 @@ def hydrogen_hamiltonian(coordinates):
         (qml.Hamiltonian): A PennyLane Hamiltonian.
     """
     molecule = qml.qchem.Molecule(["H", "H"], coordinates)
-    return qml.qchem.molecular_hamiltonian(
+    return qml.qchem.molecular_hamiltonian( 
         molecule
     )[0]
 
