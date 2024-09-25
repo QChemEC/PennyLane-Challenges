@@ -13,7 +13,7 @@ def create_Hamiltonian(h):
     """
 
     # Put your code here #
-    N = 4 # number of spins in chain
+    N = 4 
     obs = [qml.PauliZ(i) @ qml.PauliZ((i+1)%N) for i in range(N)]
     coeffs = [-1] * N
     obs += [qml.PauliX(i) for i in range(N)]
@@ -68,7 +68,6 @@ def train(h):
     H = create_Hamiltonian(h)
     params = np.random.rand(12, requires_grad=True)
 
-    # optimising loop
     opt = qml.AdagradOptimizer(stepsize=0.1)
     for _ in range(200): # max iterations
         params = opt.step(lambda x: model(x, H), params)
