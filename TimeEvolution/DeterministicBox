@@ -11,7 +11,7 @@ def deterministic_box(bits):
          
     Returns: 
         list[int]: The output bits measured after deterministic evolution.
-    """
+    """ 
     ##################
     # YOUR CODE HERE #
     first_element = bits.pop(0)  # Remove the first element
