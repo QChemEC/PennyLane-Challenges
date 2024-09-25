@@ -8,7 +8,7 @@ def create_Hamiltonian(h):
     Args: 
         h (float): magnetic field strength
 
-    Returns:
+    Returns: 
         (qml.Hamiltonian): Hamiltonian of the statement associated to h
     """
 
