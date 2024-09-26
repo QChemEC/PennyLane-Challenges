@@ -1,0 +1,145 @@
+def build_density_matrix(state_1, state_2, p_1, p_2):
+    """Build the density matrix for two randomly prepared states.
+    
+    Args:
+        state_1 (array[complex]): A normalized quantum state vector
+        state_2 (array[complex]): A second normalized quantum state vector
+        p_1 (float): The probability of preparing state_1
+        p_2 (float): The probability of preparing state_2
+        
+    Returns:
+        (np.array([array[complex]])): The density matrix for the preparation.
+    """
+ 
+    projector_1 =  np.outer(state_1, np.conj(state_1))# Compute the outer product of state_1 with itself
+    projector_2 =  np.outer(state_2, np.conj(state_2))# Compute the outer product of state_2 with itself    
+    
+    density_matrix = p_1*projector_1 + p_2*projector_2 # Build the density matrix
+    
+    return density_matrix
+
+print("state_1 = |+y>, state_2 = |+x>, p_1 = 0.5, p_2 = 0.5")
+print("density_matrix:")
+print(build_density_matrix([1,1j]/np.sqrt(2), [1,1]/np.sqrt(2), 0.5, 0.5))   
+
+def is_hermitian(matrix):
+    """Check whether a matrix is hermitian.
+    
+    Args:
+        matrix: (array(array[complex]))
+    Returns:
+        bool: True if the matrix is Hermitian, False otherwise
+    """
+ 
+    ##################
+    # YOUR CODE HERE #
+    conjugate_transpose = np.conjugate(matrix.T)
+    ################## 
+    
+    return np.allclose(matrix, conjugate_transpose) # Return the boolean value
+
+matrix_1 = np.array([[1,1j],[-1j,1]])
+matrix_2 = np.array([[1,2],[3,4]])
+
+print("Is matrix [[1,1j],[-1j,1]] Hermitian?")
+print(is_hermitian(matrix_1))
+print("Is matrix [[1,2],[3,4]] Hermitian?")
+print(is_hermitian(matrix_2))
+
+def has_trace_one(matrix):
+    """Check whether a matrix has unit trace.
+    
+    Args:
+        matrix: (array(array[complex]))
+    Returns:
+        bool: True if the trace of matrix is 1, False otherwise
+    """
+ 
+    ##################
+    # YOUR CODE HERE #
+    trace = np.trace(matrix)
+
+    if trace == 1:
+        return True
+    else:
+        return False
+    ################## 
+
+matrix_1 = [[1/2,1j],[-1j,1/2]]
+matrix_2 = [[1,2],[3,4]]
+    
+print("Does [[1/2,1j],[-1j,1/2]] have unit trace?")
+print(has_trace_one(matrix_1))
+print("Does [[1,2],[3,4]] have unit trace?")
+print(has_trace_one(matrix_2))
+
+
+def is_semi_positive(matrix):
+    """Check whether a matrix is positive semidefinite.
+    
+    Args:
+        matrix: (array(array[complex]))
+    Returns:
+        bool: True if the matrix is positive semidefinite, False otherwise
+    """
+ 
+    ##################
+    # YOUR CODE HERE #
+    eigenvalues = np.linalg.eigvals(matrix)
+    
+    # Check if all eigenvalues are non-negative
+    return bool(np.all(eigenvalues >= 0))
+    ################## 
+    
+matrix_1 = [[3/4,1/4],[1/4,1/4]]
+matrix_2 = [[0,1/4],[1/4,1/4]]
+
+print("Is matrix [[3/4,1/4],[1/4,1/4]] positive semidefinite?")
+print(is_semi_positive(matrix_1))
+print("Is matrix [[0,1/4],[1/4,1/4]] positive semidefinite?")
+print(is_semi_positive(matrix_2))
+
+def is_density_matrix(matrix):
+    """Check whether a matrix is a density matrix.
+    
+    Args:
+        matrix: (array(array[complex]))
+    Returns:
+        bool: True if the matrix isa density matrix, False otherwise
+    """
+ 
+    ##################
+    # YOUR CODE HERE #
+    return is_hermitian(matrix) and has_trace_one(matrix) and is_semi_positive(matrix)
+    ################## 
+
+
+matrix_1 = np.array([[3/4,0.25j],[-0.25j,1/4]])
+matrix_2 = np.array([[0,1/4],[1/4,1/4]])
+    
+print("Is [[3/4,0.25j],[-0.25j,1/4]] a density matrix?")
+print(is_density_matrix(matrix_1))
+print("Is matrix [[0,1/4],[1/4,1/4]] a density matrix?")
+print(is_density_matrix(matrix_2))
+
+def purity(density_matrix):
+    """Calculate the purity of a density operator.
+    
+    Args:
+        density_matrix (array(array[complex])): A density matrix, assumed to satisfy all the defining properties
+    Returns:
+        (float): The purity of the density matrix
+    """
+ 
+    ##################
+    # YOUR CODE HERE #
+    purity = np.trace(density_matrix@density_matrix)
+    ################## 
+    
+    return purity # Return the purity
+
+matrix_1 = np.array([[1/2,1/2],[1/2,1/2]])
+matrix_2 = np.array([[3/4,1/4],[1/4,1/4]])
+
+print("The purity of [[1/2,1/2],[1/2,1/2]] is {}".format(purity(matrix_1)))
+print("The purity of [[3/4,1/4],[1/4,1/4]] is {}".format(purity(matrix_2)))
