@@ -39,3 +39,40 @@ def noisy_channel(b, p):
         codeword.append(noisy_bit)
     ##################
     return codeword
+
+def decode(codeword):
+    """Executes Bob's decoding procedure.
+
+    Args:
+        codeword (list(int)): The message Bob receives (a 3-bit string). 
+
+    Returns:
+        (int): A 0 or 1 — Bob's guess at what Alice's bit was.
+    """
+    ##################
+    # YOUR CODE HERE #
+    count_zeros = codeword.count(0)
+    count_ones = codeword.count(1)
+
+    # Return the majority vote (the bit that appears more times)
+    return 0 if count_zeros >= count_ones else 1
+    ##################
+
+def success(b, codeword):
+    """Determines if Bob's decoding procedure is successful.
+
+    Args:
+        b (int): Alice's bit she sent to Bob. Can be 0 or 1. 
+        codeword (list(int)): The message Bob receives (a 3-bit string). 
+         
+    Returns: 
+        (bool): True/False if Bob decodes correctly/incorrectly.
+    """
+    ##################
+    # YOUR CODE HERE #
+    bob_guess = decode(codeword)
+    ##################
+    return bob_guess == b
+
+
+
