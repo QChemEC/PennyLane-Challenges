@@ -1,0 +1,83 @@
+def composite_density_matrix(rho, sigma):
+    """Build composite density matrix from two states.
+    
+    Args:
+        rho: (np.array(array[complex]): The density matrix of the first input state
+        sigma: (np.array(array[complex]): The density matrix of the second input state
+        
+    Returns:
+        (np.array([array[complex]])): The density matrix for the composite system.
+    """
+
+    ################
+    #YOUR CODE HERE#
+    ################
+
+    # Build the density matrix and return it
+    
+    return np.kron(rho,sigma)
+
+def create_entangled(alpha):
+
+    """ Subcircuit that creates the entangled state
+    Args:
+        - alpha (float): angle parameterizing the subcircuit.
+    """
+    
+    # Write your circuit here 
+    qml.RY(alpha, wires=0) #create cosalpha/2 |0> + sinalpha/2 |1>
+    
+    # Apply a CNOT gate to entangle the qubits
+    qml.CNOT(wires=[0, 1])
+    
+
+
+dev = qml.device("default.qubit", wires=2) # Create your device
+
+@qml.qnode(dev)
+def reduced_entangled(alpha):
+
+    """
+    Function that prepares an entangled state and calculates the reduced density matrix 
+    on the first wire.
+    Args:
+        - alpha (float): Angle parametrizing the entangled state
+    Returns:
+        (np.array(complex)): Reduce density matrix on the first wire
+    """
+    
+    # Prepare the state using create_entangled
+    create_entangled(alpha)
+    
+    return qml.density_matrix(wires=0) # Return the density matrix on wire = 0
+
+alpha = np.pi/3
+
+print("For alpha = pi/3, the reduced density matrix is {}".format(reduced_entangled(alpha)))
+
+dev = qml.device('default.mixed', wires = 2)
+
+parity_even = 0.5*qml.PauliZ(wires=0) @ qml.PauliZ(wires=1)+ 0.5*qml.Identity(0) @ qml.Identity(1)
+parity_odd = - 0.5*qml.PauliZ(wires=0) @ qml.PauliZ(wires=1)+ 0.5*qml.Identity(0) @ qml.Identity(1)
+
+max_mixed = np.eye(4)/4
+psi_plus = qml.math.dm_from_state_vector(np.array([1,0,0,1])/np.sqrt(2))
+
+@qml.qnode(dev)
+def parity_check_circuit(state,parity_operator):
+
+    ################
+    #YOUR CODE HERE#
+    qml.QubitDensityMatrix(state, wires=[0, 1])
+
+    # Return the expectation value of the parity operator
+    return qml.expval(parity_operator)
+    ################
+
+print("Maximal mixed state expected values")
+print(f"Odd Parity: {parity_check_circuit(max_mixed,parity_odd)}")
+print(f"Even Parity: {parity_check_circuit(max_mixed,parity_even)}")
+
+print("Maximal entangled state expected values")
+print(f"Odd Parity: {parity_check_circuit(psi_plus,parity_odd)}")
+print(f"Even Parity: {parity_check_circuit(psi_plus,parity_even)}")
