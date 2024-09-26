@@ -1,1 +1,1 @@
-Here I solve problems stated on https://pennylane.ai/challenges/
+Here I solve problems from https://pennylane.ai/challenges/
