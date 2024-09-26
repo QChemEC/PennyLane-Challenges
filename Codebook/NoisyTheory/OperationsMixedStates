@@ -1,0 +1,182 @@
+def apply_gate_mixed(rho,U):
+    
+    """
+    Args:
+        rho: (np.array(array[complex]): The density matrix of the input state
+        U (np.array(array[complex])): A matrix representing the unitary gate U to be applied.
+        
+    Returns:
+        (np.array([array[complex]])): The density matrix of the output state.
+    """
+
+    ################
+    #YOUR CODE HERE#
+    d = U @ rho @ np.conj(U).T
+    ################
+    
+    return d # Return the density matrix
+
+U = qml.matrix(qml.RX(np.pi/3,0))
+rho = np.array([[3/4,1/4],[1/4,1/4]])
+
+print("A pi/3 RX rotation applied on [[3/4,1/4],[1/4,1/4]] gives:")
+print(apply_gate_mixed(rho,U).round(2))
+
+
+dev = qml.device("default.mixed", wires=1)
+
+@qml.qnode(dev)
+def apply_gate_circuit(rho,U):
+
+    """
+    Args:
+        rho: (np.array(array[complex]): The density matrix of the input state.
+        U (np.array(array[complex])): A matrix representing the unitary gate U to be applied.
+        
+    Returns:
+        (np.array([array[complex]])): The density matrix of the output state.
+    """
+    
+    # Prepare a state with density operator rho
+    # Apply the unitary U
+    qml.QubitDensityMatrix(rho, wires=0)
+    
+    # Apply the unitary transformation
+    qml.QubitUnitary(U, wires=0)
+    
+    # Return the final density matrix
+    return qml.state()
+
+U = qml.matrix(qml.RX(np.pi/3,0))
+rho = np.array([[3/4,1/4],[1/4,1/4]])
+
+print("A pi/3 RX rotation applied on [[3/4,1/4],[1/4,1/4]] gives:")
+print(apply_gate_circuit(rho,U).round(2))
+
+def eigenprojectors(obs):
+    
+    """
+    Args:
+        obs (np.array([array[complex]])): A Hermitian operator representing a quantum observable.
+        
+    Returns:
+        (np.array(array[array[complex]])): An array containing the eigenprojectors of the observable.
+        Therefore, it is an array that contains matrices.
+    """
+
+    ################
+    #YOUR CODE HERE#
+    eigenvalues, eigenvectors = np.linalg.eig(obs)
+    
+    # Build the list of eigenprojectors using outer product
+    projectors = [np.outer(v, np.conjugate(v)) for v in eigenvectors.T]  # Transpose to get each eigenvector
+
+    return projectors
+    ################
+
+def outcome_probs(rho, B):
+
+    """
+    Args:
+        rho (np.array([array[complex]])): The density matrix of the state before measurement
+        B (np.array([array[complex]])): Matrix representation of the measured observable
+    Returns:
+        (np.array(float)): List of measurement probabilities, in no particular order.
+    """
+    
+    eigen_projectors = eigenprojectors(B) # Use a previously defined function to obtain the eigenprojectors
+    
+    prob_list = [np.trace(np.dot(P_i, rho)).real for P_i in eigen_projectors]
+    
+    return np.array(prob_list)
+
+
+rho = np.array([[3/4,0],[0,1/4]])
+B = qml.matrix(qml.PauliY(0))
+
+print("State: [[3/4,0],[0,1/4]], Observable: {}".format(B))
+print("Measurement probabilities {}".format(outcome_probs(rho,B).round(2)))
+
+dev = qml.device('default.mixed', wires = 1)
+
+@qml.qnode(dev)
+def mixed_probs_circuit(rho, obs):
+    """
+    Prepares a state with density matrix rho and returns measurement
+    probabilities associated to the observable obs.
+
+    Args:
+        rho (np.array[array[complex]]): The density matrix we need to prepare
+        obs: (pennylane.operation): A PennyLane hermitian operator 
+
+    Returns:
+        np.array(float): The measurement probabilities as required
+    """
+    
+    # Prepare the density matrix
+    qml.QubitDensityMatrix(rho, wires=0)
+    
+    return qml.probs(op=obs) # Return the probabilities associated to obs
+
+rho = np.array([[3/4,0],[0,1/4]])
+B = qml.PauliY(0)
+
+print("State: [[3/4,0],[0,1/4]], Observable: {}".format(qml.matrix(B)))
+print("Measurement probabilities {}".format(mixed_probs_circuit(rho,B))) 
+
+def mixed_expval(rho, B):
+
+    """
+    Returns the expectation value of the observable B on state rho
+
+    Args: 
+        rho (np.array(array(float)): A numpy matrix representing a density matrix
+        B (np.array(array(complex))): A numpy matrix representing an observable
+
+    Returns:
+        float: The expectation value as required
+    """
+
+    ##################
+    # YOUR CODE HERE #
+    exp = np.trace(rho@B)
+    ##################
+    
+    return exp # Return the expectation value
+
+rho = np.array([[3/4,0],[0,1/4]])
+B = qml.matrix(qml.PauliZ(0))
+
+print("State: {}".format(rho))
+print("Observable: {}".format(B))
+print("Expectation value: {}".format(mixed_expval(rho,B)))
+
+dev = qml.device('default.mixed', wires = 1)
+
+@qml.qnode(dev)
+def expval_circuit(rho,obs):
+
+    """
+    Returns the expectation value of the observable obs on state rho
+
+    Args: 
+        rho (np.array(array(float)): A numpy matrix representing a density matrix
+        B (pennylane.operation): A pennylane observable
+
+    Returns:
+        np.tensor: A numpy tensor with the expectation value as required
+    """
+
+    ##################
+    # YOUR CODE HERE #
+    qml.QubitDensityMatrix(rho, wires=0)
+    
+    return qml.expval(obs)
+    ##################
+
+rho = np.array([[3/4,0],[0,1/4]])
+B = qml.PauliZ(0)
+
+print("State: {}".format(rho))
+print("Observable: {}".format(qml.matrix(B)))
+print("Expectation value: {}".format(expval_circuit(rho,B)))
